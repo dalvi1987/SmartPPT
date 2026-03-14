@@ -7,6 +7,10 @@
     <ProjectReference Include="..\..\..\SmartPPT.Shared\SmartPPT.Shared.BuildingBlocks\SmartPPT.Shared.BuildingBlocks.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LiteDB" Version="5.0.17" />
+  </ItemGroup>  
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

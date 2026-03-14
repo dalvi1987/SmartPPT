@@ -1,5 +1,5 @@
 using LiteDB;
-using SmartPPT.Presentation.Domain.Presentations;
+using prsnt = SmartPPT.Presentation.Domain.Presentations;
 using SmartPPT.Presentation.Infrastructure.Configuration;
 
 namespace SmartPPT.Presentation.Infrastructure.Persistence;
@@ -20,7 +20,7 @@ public sealed class LiteDbContext : IDisposable
         _database = new LiteDatabase(options.DatabasePath);
     }
 
-    public ILiteCollection<Presentation> Presentations => _database.GetCollection<Presentation>("presentations");
+    public ILiteCollection<prsnt.Presentation> Presentations => _database.GetCollection<prsnt.Presentation>("presentations");
 
     public void Dispose()
     {

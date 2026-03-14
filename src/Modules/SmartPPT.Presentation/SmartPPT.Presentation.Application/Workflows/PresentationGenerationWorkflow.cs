@@ -2,7 +2,7 @@ using SmartPPT.Agent.Contracts.Plans;
 using SmartPPT.Agent.Contracts.Prompts;
 using SmartPPT.Agent.Contracts.Services;
 using SmartPPT.Presentation.Domain.Enums;
-using SmartPPT.Presentation.Domain.Presentations;
+using prsnt = SmartPPT.Presentation.Domain.Presentations;
 using SmartPPT.Presentation.Domain.Slides;
 using SmartPPT.SlideEngine.Contracts.Elements;
 using SmartPPT.SlideEngine.Contracts.Services;
@@ -23,7 +23,7 @@ public sealed class PresentationGenerationWorkflow
         _slideLayoutEngine = slideLayoutEngine;
     }
 
-    public Presentation Execute(string prompt, string templateId, IReadOnlyCollection<string> dataSources)
+    public prsnt.Presentation Execute(string prompt, string templateId, IReadOnlyCollection<string> dataSources)
     {
         var plan = GeneratePresentationPlan(prompt, templateId, dataSources);
         var presentation = CreatePresentation(plan, templateId);
@@ -63,9 +63,9 @@ public sealed class PresentationGenerationWorkflow
         });
     }
 
-    private static Presentation CreatePresentation(PresentationPlanDto plan, string templateId)
+    private static prsnt.Presentation CreatePresentation(PresentationPlanDto plan, string templateId)
     {
-        return new Presentation
+        return new prsnt.Presentation
         {
             Id = Guid.NewGuid(),
             Title = plan.Title,
@@ -103,7 +103,7 @@ public sealed class PresentationGenerationWorkflow
         };
     }
 
-    private static void PublishPresentationArtifact(Presentation presentation)
+    private static void PublishPresentationArtifact(prsnt.Presentation presentation)
     {
     }
 }

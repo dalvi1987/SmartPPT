@@ -1,12 +1,12 @@
 using SmartPPT.Presentation.Contracts.DTOs;
 using SmartPPT.Presentation.Contracts.Responses;
-using SmartPPT.Presentation.Domain.Presentations;
+using prsnt = SmartPPT.Presentation.Domain.Presentations;
 
 namespace SmartPPT.Presentation.Application.Mappers;
 
 public static class PresentationMapper
 {
-    public static PresentationDto ToDto(Presentation presentation)
+    public static PresentationDto ToDto(prsnt.Presentation presentation)
     {
         return new PresentationDto
         {
@@ -19,7 +19,7 @@ public static class PresentationMapper
         };
     }
 
-    public static PresentationResponse ToResponse(Presentation presentation)
+    public static PresentationResponse ToResponse(prsnt.Presentation presentation)
     {
         return new PresentationResponse
         {

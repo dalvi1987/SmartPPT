@@ -3,7 +3,7 @@ using SmartPPT.Presentation.Application.Interfaces;
 using SmartPPT.Presentation.Application.Repositories;
 using SmartPPT.Presentation.Application.Workflows;
 using SmartPPT.Presentation.Contracts.Requests;
-using SmartPPT.Presentation.Domain.Presentations;
+using prsnt = SmartPPT.Presentation.Domain.Presentations;
 using SmartPPT.SlideEngine.Contracts.Services;
 
 namespace SmartPPT.Presentation.Application.Orchestrators;
@@ -24,7 +24,7 @@ public sealed class PresentationOrchestrator : IPresentationOrchestrator
         _presentationRepository = presentationRepository;
     }
 
-    public Presentation GeneratePresentation(GeneratePresentationRequest request)
+    public prsnt.Presentation GeneratePresentation(GeneratePresentationRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
