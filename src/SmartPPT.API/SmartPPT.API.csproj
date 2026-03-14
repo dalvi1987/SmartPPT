@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Modules\SmartPPT.Storage\SmartPPT.Storage.Application\SmartPPT.Storage.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
+  </ItemGroup>
+
 </Project>

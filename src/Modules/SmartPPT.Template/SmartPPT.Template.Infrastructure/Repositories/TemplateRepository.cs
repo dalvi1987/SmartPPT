@@ -1,5 +1,5 @@
 using SmartPPT.Template.Application.Interfaces;
-using SmartPPT.Template.Domain.Templates;
+using temp = SmartPPT.Template.Domain.Templates;
 using SmartPPT.Template.Infrastructure.Persistence;
 
 namespace SmartPPT.Template.Infrastructure.Repositories;
@@ -13,12 +13,12 @@ public sealed class TemplateRepository : ITemplateRepository
         _context = context;
     }
 
-    public Template? GetTemplateById(Guid templateId)
+    public temp.Template? GetTemplateById(Guid templateId)
     {
         return _context.Templates.FindById(templateId);
     }
 
-    public IReadOnlyCollection<Template> GetAllTemplates()
+    public IReadOnlyCollection<temp.Template> GetAllTemplates()
     {
         return _context.Templates.FindAll().ToArray();
     }

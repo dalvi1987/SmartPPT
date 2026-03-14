@@ -1,6 +1,6 @@
 using LiteDB;
 using SmartPPT.Template.Domain.Patterns;
-using SmartPPT.Template.Domain.Templates;
+using temp =SmartPPT.Template.Domain.Templates;
 using SmartPPT.Template.Infrastructure.Configuration;
 
 namespace SmartPPT.Template.Infrastructure.Persistence;
@@ -21,7 +21,7 @@ public sealed class LiteDbContext : IDisposable
         _database = new LiteDatabase(options.DatabasePath);
     }
 
-    public ILiteCollection<Template> Templates => _database.GetCollection<Template>("templates");
+    public ILiteCollection<temp.Template> Templates => _database.GetCollection<temp.Template>("templates");
 
     public ILiteCollection<Pattern> Patterns => _database.GetCollection<Pattern>("patterns");
 
