@@ -6,12 +6,12 @@ using SmartPPT.Shared.BuildingBlocks.AI;
 
 namespace SmartPPT.Agent.Infrastructure.LLM;
 
-public sealed class OpenAiClient : ILLMClient
+public sealed class OpenRouterClient : ILLMClient
 {
     private readonly HttpClient _httpClient;
     private readonly IOptions<AgentOptions> _options;
 
-    public OpenAiClient(HttpClient httpClient, IOptions<AgentOptions> options)
+    public OpenRouterClient(HttpClient httpClient, IOptions<AgentOptions> options)
     {
         _httpClient = httpClient;
         _options = options;
@@ -19,7 +19,7 @@ public sealed class OpenAiClient : ILLMClient
 
     public async Task<string> GenerateAsync(string prompt, CancellationToken cancellationToken = default)
     {
-        var settings = _options.Value.OpenAi;
+        var settings = _options.Value.OpenRouter;
         _httpClient.BaseAddress = new Uri(settings.BaseUrl);
 
         using var response = await _httpClient.PostAsJsonAsync("chat/completions", new

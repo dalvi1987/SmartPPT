@@ -6,11 +6,11 @@ using SmartPPT.Storage.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddTemplateModule();
+builder.Services.AddTemplateModule(builder.Configuration);
 builder.Services.AddSlideEngineModule();
-builder.Services.AddAgentModule();
-builder.Services.AddPresentationModule();
-builder.Services.AddStorageModule();
+builder.Services.AddAgentModule(builder.Configuration);
+builder.Services.AddPresentationModule(builder.Configuration);
+builder.Services.AddStorageModule(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

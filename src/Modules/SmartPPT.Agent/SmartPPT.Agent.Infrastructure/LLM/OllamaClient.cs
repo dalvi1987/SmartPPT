@@ -6,12 +6,12 @@ using SmartPPT.Shared.BuildingBlocks.AI;
 
 namespace SmartPPT.Agent.Infrastructure.LLM;
 
-public sealed class OpenAiClient : ILLMClient
+public sealed class OllamaClient : ILLMClient
 {
     private readonly HttpClient _httpClient;
     private readonly IOptions<AgentOptions> _options;
 
-    public OpenAiClient(HttpClient httpClient, IOptions<AgentOptions> options)
+    public OllamaClient(HttpClient httpClient, IOptions<AgentOptions> options)
     {
         _httpClient = httpClient;
         _options = options;
@@ -19,17 +19,18 @@ public sealed class OpenAiClient : ILLMClient
 
     public async Task<string> GenerateAsync(string prompt, CancellationToken cancellationToken = default)
     {
-        var settings = _options.Value.OpenAi;
+        var settings = _options.Value.Ollama;
         _httpClient.BaseAddress = new Uri(settings.BaseUrl);
 
-        using var response = await _httpClient.PostAsJsonAsync("chat/completions", new
+        using var response = await _httpClient.PostAsJsonAsync("api/generate", new
         {
             model = settings.Model,
-            temperature = settings.Temperature,
-            max_tokens = settings.MaxTokens,
-            messages = new[]
+            prompt,
+            stream = false,
+            options = new
             {
-                new { role = "user", content = prompt }
+                temperature = settings.Temperature,
+                num_predict = settings.MaxTokens
             }
         }, cancellationToken);
 
@@ -38,11 +39,7 @@ public sealed class OpenAiClient : ILLMClient
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var json = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
 
-        return json.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString() ?? string.Empty;
+        return json.RootElement.GetProperty("response").GetString() ?? string.Empty;
     }
 
     public Task<string> GenerateTextAsync(string prompt, CancellationToken cancellationToken = default)

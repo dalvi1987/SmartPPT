@@ -8,14 +8,15 @@ using SmartPPT.Storage.Infrastructure.Builders;
 using SmartPPT.Storage.Infrastructure.Configuration;
 using SmartPPT.Storage.Infrastructure.Persistence;
 using SmartPPT.Storage.Infrastructure.Repositories;
+using Microsoft.Extensions.Configuration;
 
 namespace SmartPPT.Storage.Infrastructure.DependencyInjection;
 
 public static class StorageModule
 {
-    public static IServiceCollection AddStorageModule(this IServiceCollection services)
+    public static IServiceCollection AddStorageModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new StorageOptions());
+        services.Configure<StorageOptions>(configuration.GetSection("PresentationStorage")); 
         services.AddSingleton<LiteDbContext>();
         services.AddScoped<IDocumentBuilder, PptDocumentBuilder>();
         services.AddScoped<IDocumentRepository, DocumentRepository>();

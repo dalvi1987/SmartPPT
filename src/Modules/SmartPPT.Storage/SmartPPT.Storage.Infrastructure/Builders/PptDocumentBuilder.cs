@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using SmartPPT.SlideEngine.Contracts.Layout;
 using SmartPPT.Storage.Application.Builders;
 using SmartPPT.Storage.Domain.Files;
@@ -9,9 +10,9 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
 {
     private readonly StorageOptions _options;
 
-    public PptDocumentBuilder(StorageOptions options)
+    public PptDocumentBuilder(IOptions<StorageOptions> options)
     {
-        _options = options;
+        _options = options.Value;
     }
 
     public StoredFile BuildDocument(RenderableSlideDto slide)

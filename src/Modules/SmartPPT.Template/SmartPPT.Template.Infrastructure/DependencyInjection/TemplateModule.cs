@@ -5,16 +5,18 @@ using SmartPPT.Template.Contracts.Services;
 using SmartPPT.Template.Infrastructure.Configuration;
 using SmartPPT.Template.Infrastructure.Persistence;
 using SmartPPT.Template.Infrastructure.Repositories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace SmartPPT.Template.Infrastructure.DependencyInjection;
 
 public static class TemplateModule
 {
-    public static IServiceCollection AddTemplateModule(this IServiceCollection services)
+    public static IServiceCollection AddTemplateModule(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddSingleton(new TemplateStorageOptions());
+        services.Configure<TemplateStorageOptions>(configuration.GetSection("TemplateStorage")); 
         services.AddSingleton<LiteDbContext>();
         services.AddScoped<ITemplateRepository, TemplateRepository>();
         services.AddScoped<TemplateRepository>();
