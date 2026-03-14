@@ -1,3 +1,5 @@
+using SmartPPT.Template.Infrastructure.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTemplateModule();
