@@ -16,7 +16,8 @@
     <ProjectReference Include="..\Modules\SmartPPT.SlideEngine\SmartPPT.SlideEngine.Infrastructure\SmartPPT.SlideEngine.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\SmartPPT.Agent\SmartPPT.Agent.Infrastructure\SmartPPT.Agent.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\SmartPPT.Presentation\SmartPPT.Presentation.Infrastructure\SmartPPT.Presentation.Infrastructure.csproj" />
-    
+    <ProjectReference Include="..\Modules\SmartPPT.Storage\SmartPPT.Storage.Infrastructure\SmartPPT.Storage.Infrastructure.csproj" />
+
   </ItemGroup>
 
   <ItemGroup>
