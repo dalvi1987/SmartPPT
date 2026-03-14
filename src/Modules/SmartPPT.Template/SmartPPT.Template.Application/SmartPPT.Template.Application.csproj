@@ -1,10 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\SmartPPT.Template.Domain\SmartPPT.Template.Domain.csproj" />
     <ProjectReference Include="..\SmartPPT.Template.Contracts\SmartPPT.Template.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\SmartPPT.Shared\SmartPPT.Shared.SharedKernel\SmartPPT.Shared.SharedKernel.csproj" />
-    <ProjectReference Include="..\..\..\SmartPPT.Shared\SmartPPT.Shared.BuildingBlocks\SmartPPT.Shared.BuildingBlocks.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
