@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Modules\SmartPPT.Presentation\SmartPPT.Presentation.Application\SmartPPT.Presentation.Application.csproj" />
+    <ProjectReference Include="..\Modules\SmartPPT.Template\SmartPPT.Template.Application\SmartPPT.Template.Application.csproj" />
+    <ProjectReference Include="..\Modules\SmartPPT.Agent\SmartPPT.Agent.Application\SmartPPT.Agent.Application.csproj" />
+    <ProjectReference Include="..\Modules\SmartPPT.SlideEngine\SmartPPT.SlideEngine.Application\SmartPPT.SlideEngine.Application.csproj" />
+    <ProjectReference Include="..\Modules\SmartPPT.Storage\SmartPPT.Storage.Application\SmartPPT.Storage.Application.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartPPT.SlideEngine.Domain\SmartPPT.SlideEngine.Domain.csproj" />
+    <ProjectReference Include="..\SmartPPT.SlideEngine.Contracts\SmartPPT.SlideEngine.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\SmartPPT.Shared\SmartPPT.Shared.SharedKernel\SmartPPT.Shared.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\SmartPPT.Shared\SmartPPT.Shared.BuildingBlocks\SmartPPT.Shared.BuildingBlocks.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
