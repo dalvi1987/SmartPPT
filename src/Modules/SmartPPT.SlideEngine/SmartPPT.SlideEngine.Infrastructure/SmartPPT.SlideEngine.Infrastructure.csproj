@@ -5,6 +5,7 @@
     <ProjectReference Include="..\SmartPPT.SlideEngine.Domain\SmartPPT.SlideEngine.Domain.csproj" />
     <ProjectReference Include="..\SmartPPT.SlideEngine.Contracts\SmartPPT.SlideEngine.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SmartPPT.Shared\SmartPPT.Shared.BuildingBlocks\SmartPPT.Shared.BuildingBlocks.csproj" />
+    <ProjectReference Include="..\..\SmartPPT.Template\SmartPPT.Template.Contracts\SmartPPT.Template.Contracts.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
