@@ -5,5 +5,5 @@ namespace SmartPPT.Storage.Application.Builders;
 
 public interface IDocumentBuilder
 {
-    StoredFile BuildDocument(RenderableSlideDto slide);
+    StoredFile BuildDocument(List<RenderableSlideDto> slides);
 }

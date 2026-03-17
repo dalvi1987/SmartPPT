@@ -40,22 +40,22 @@ public sealed class DocumentGenerator : IDocumentGenerator, IDocumentService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var generatedFiles = request.Slides
-            .Select(slide => _documentBuilder.BuildDocument(new RenderableSlideDto
+        var renderableSlides = request.Slides
+            .Select(slide => new RenderableSlideDto
             {
                 Title = slide,
                 PositionedElements = []
-            }))
+            })
             .ToList();
 
-        var primaryFile = generatedFiles.LastOrDefault();
+        var generatedFile = _documentBuilder.BuildDocument(renderableSlides);
 
         var document = new Document
         {
             Id = Guid.NewGuid(),
             PresentationId = request.PresentationId,
             Format = MapFormat(request.Format),
-            FilePath = primaryFile?.Path ?? string.Empty,
+            FilePath = generatedFile.Path,
             CreatedAt = DateTime.UtcNow
         };
 
