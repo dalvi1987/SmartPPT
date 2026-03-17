@@ -13,16 +13,16 @@ namespace SmartPPT.Storage.Infrastructure.Builders;
 
 public sealed class PptDocumentBuilder : IDocumentBuilder
 {
-    private const long SlideWidth = 9144000L;
-    private const long SlideHeight = 6858000L;
-    private const long DefaultTitleX = 457200L;
-    private const long DefaultTitleY = 274320L;
-    private const long DefaultTitleWidth = 8229600L;
-    private const long DefaultTitleHeight = 822960L;
-    private const long DefaultContentX = 640080L;
-    private const long DefaultContentY = 1371600L;
-    private const long DefaultContentWidth = 7863840L;
-    private const long DefaultContentHeight = 4572000L;
+    private const int SlideWidth = 9144000;
+    private const int SlideHeight = 6858000;
+    private const long TitleX = 457200L;
+    private const long TitleY = 274320L;
+    private const long TitleWidth = 8229600L;
+    private const long TitleHeight = 822960L;
+    private const long ContentX = 640080L;
+    private const long ContentY = 1371600L;
+    private const long ContentWidth = 7863840L;
+    private const long ContentHeight = 4572000L;
 
     private readonly StorageOptions _options;
 
@@ -35,10 +35,11 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
     {
         ArgumentNullException.ThrowIfNull(slides);
 
-        Directory.CreateDirectory(_options.StoragePath);
+        var documentsDirectory = Path.Combine(_options.StoragePath, "Documents");
+        Directory.CreateDirectory(documentsDirectory);
 
         var fileName = $"{Guid.NewGuid()}.pptx";
-        var filePath = Path.Combine(_options.StoragePath, fileName);
+        var filePath = Path.Combine(documentsDirectory, fileName);
         var createdAt = DateTime.UtcNow;
 
         using (var document = PresentationDocument.Create(filePath, PresentationDocumentType.Presentation))
@@ -48,13 +49,24 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
 
             var slideMasterPart = CreateSlideMasterPart(presentationPart);
             var slideLayoutPart = slideMasterPart.SlideLayoutParts.First();
-            var slideIdList = new P.SlideIdList();
+
+            var slideMasterIdList = presentationPart.Presentation.AppendChild(new P.SlideMasterIdList());
+            slideMasterIdList.Append(new P.SlideMasterId
+            {
+                Id = 2147483648U,
+                RelationshipId = presentationPart.GetIdOfPart(slideMasterPart)
+            });
+
+            var slideIdList = presentationPart.Presentation.AppendChild(new P.SlideIdList());
+            presentationPart.Presentation.SlideSize = new P.SlideSize { Cx = SlideWidth, Cy = SlideHeight };
+            presentationPart.Presentation.NotesSize = new P.NotesSize { Cx = SlideHeight, Cy = SlideWidth };
+
             uint slideId = 256U;
 
             foreach (var slide in slides)
             {
                 var slidePart = presentationPart.AddNewPart<SlidePart>();
-                CreateSlide(slidePart, slide, slideLayoutPart);
+                CreateSlidePart(slidePart, slide, slideLayoutPart);
 
                 slideIdList.Append(new P.SlideId
                 {
@@ -63,16 +75,6 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
                 });
             }
 
-            presentationPart.Presentation.Append(new P.SlideMasterIdList(
-                new P.SlideMasterId
-                {
-                    Id = 2147483648U,
-                    RelationshipId = presentationPart.GetIdOfPart(slideMasterPart)
-                }));
-
-            presentationPart.Presentation.Append(slideIdList);
-            presentationPart.Presentation.SlideSize = new P.SlideSize { Cx = (int)SlideWidth, Cy = (int)SlideHeight };
-            presentationPart.Presentation.NotesSize = new P.NotesSize { Cx = (int)SlideHeight, Cy = (int)SlideWidth };
             presentationPart.Presentation.Save();
         }
 
@@ -95,28 +97,16 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
 
         var slideLayoutPart = slideMasterPart.AddNewPart<SlideLayoutPart>();
         slideLayoutPart.SlideLayout = new P.SlideLayout(
-            new P.CommonSlideData(
-                new P.ShapeTree(
-                    new P.NonVisualGroupShapeProperties(
-                        new P.NonVisualDrawingProperties { Id = 1U, Name = string.Empty },
-                        new P.NonVisualGroupShapeDrawingProperties(),
-                        new P.ApplicationNonVisualDrawingProperties()),
-                    new P.GroupShapeProperties(new A.TransformGroup()))),
+            new P.CommonSlideData(CreateBaseShapeTree()),
             new P.ColorMapOverride(new A.MasterColorMapping()))
         {
-            Type = P.SlideLayoutValues.Text,
+            Type = P.SlideLayoutValues.Blank,
             Preserve = true
         };
         slideLayoutPart.SlideLayout.Save();
 
         slideMasterPart.SlideMaster = new P.SlideMaster(
-            new P.CommonSlideData(
-                new P.ShapeTree(
-                    new P.NonVisualGroupShapeProperties(
-                        new P.NonVisualDrawingProperties { Id = 1U, Name = string.Empty },
-                        new P.NonVisualGroupShapeDrawingProperties(),
-                        new P.ApplicationNonVisualDrawingProperties()),
-                    new P.GroupShapeProperties(new A.TransformGroup()))),
+            new P.CommonSlideData(CreateBaseShapeTree()),
             new P.ColorMap
             {
                 Background1 = A.ColorSchemeIndexValues.Light1,
@@ -147,106 +137,94 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
         return slideMasterPart;
     }
 
-    private static void CreateSlide(SlidePart slidePart, RenderableSlideDto slide, SlideLayoutPart slideLayoutPart)
+    private static void CreateSlidePart(SlidePart slidePart, RenderableSlideDto slide, SlideLayoutPart slideLayoutPart)
     {
         slidePart.AddPart(slideLayoutPart);
 
-        var shapeTree = new P.ShapeTree(
-            new P.NonVisualGroupShapeProperties(
-                new P.NonVisualDrawingProperties { Id = 1U, Name = string.Empty },
-                new P.NonVisualGroupShapeDrawingProperties(),
-                new P.ApplicationNonVisualDrawingProperties()),
-            new P.GroupShapeProperties(new A.TransformGroup()));
+        var shapeTree = CreateBaseShapeTree();
+        shapeTree.Append(CreateTextShape(string.IsNullOrWhiteSpace(slide.Title) ? "Untitled Slide" : slide.Title, 2U));
 
-        shapeTree.Append(CreateTitleShape(slide.Title));
-        shapeTree.Append(CreateBodyShape(slide.PositionedElements));
+        var bulletTexts = slide.PositionedElements
+            .Where(element => element.ElementType == ElementType.Text && !string.IsNullOrWhiteSpace(element.Content))
+            .Select(element => element.Content)
+            .ToList();
+
+        shapeTree.Append(CreateBulletShape(bulletTexts, 3U));
 
         slidePart.Slide = new P.Slide(
             new P.CommonSlideData(shapeTree),
             new P.ColorMapOverride(new A.MasterColorMapping()));
+
         slidePart.Slide.Save();
     }
 
-    private static P.Shape CreateTitleShape(string title)
+    private static P.ShapeTree CreateBaseShapeTree()
     {
-        return CreateTextShape(
-            id: 2U,
-            name: "Title",
-            textValue: string.IsNullOrWhiteSpace(title) ? "Untitled Slide" : title,
-            x: DefaultTitleX,
-            y: DefaultTitleY,
-            width: DefaultTitleWidth,
-            height: DefaultTitleHeight,
-            fontSize: 2400,
-            isBullet: false,
-            placeholderType: P.PlaceholderValues.Title);
+        return new P.ShapeTree(
+            new P.NonVisualGroupShapeProperties(
+                new P.NonVisualDrawingProperties { Id = 1U, Name = string.Empty },
+                new P.NonVisualGroupShapeDrawingProperties(),
+                new P.ApplicationNonVisualDrawingProperties()),
+            new P.GroupShapeProperties(
+                new A.TransformGroup(
+                    new A.Offset { X = 0L, Y = 0L },
+                    new A.Extents { Cx = 0L, Cy = 0L },
+                    new A.ChildOffset { X = 0L, Y = 0L },
+                    new A.ChildExtents { Cx = 0L, Cy = 0L })));
     }
 
-    private static P.Shape CreateBodyShape(IEnumerable<PositionedElementDto> elements)
+    private static P.Shape CreateTextShape(string text, uint id)
+    {
+        return new P.Shape(
+            new P.NonVisualShapeProperties(
+                new P.NonVisualDrawingProperties { Id = id, Name = $"TextBox {id}" },
+                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks { NoGrouping = true }),
+                new P.ApplicationNonVisualDrawingProperties()),
+            new P.ShapeProperties(
+                new A.Transform2D(
+                    new A.Offset { X = TitleX, Y = TitleY },
+                    new A.Extents { Cx = TitleWidth, Cy = TitleHeight }),
+                new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }),
+            new P.TextBody(
+                new A.BodyProperties(),
+                new A.ListStyle(),
+                CreateParagraph(text, isBullet: false, fontSize: 2400)));
+    }
+
+    private static P.Shape CreateBulletShape(List<string> texts, uint id)
     {
         var textBody = new P.TextBody(
             new A.BodyProperties(),
             new A.ListStyle());
 
-        var textElements = elements
-            .Where(element => element.ElementType == ElementType.Text && !string.IsNullOrWhiteSpace(element.Content))
-            .ToList();
-
-        if (textElements.Count == 0)
+        if (texts.Count == 0)
         {
-            textBody.Append(CreateParagraph(" ", isBullet: false, fontSize: 1800));
+            textBody.Append(CreateParagraph(string.Empty, isBullet: false, fontSize: 1800));
         }
         else
         {
-            foreach (var element in textElements)
+            foreach (var text in texts)
             {
-                textBody.Append(CreateParagraph(element.Content, isBullet: true, fontSize: 1800));
+                textBody.Append(CreateParagraph(text, isBullet: true, fontSize: 1800));
             }
         }
 
         return new P.Shape(
             new P.NonVisualShapeProperties(
-                new P.NonVisualDrawingProperties { Id = 3U, Name = "Content" },
+                new P.NonVisualDrawingProperties { Id = id, Name = $"TextBox {id}" },
                 new P.NonVisualShapeDrawingProperties(new A.ShapeLocks { NoGrouping = true }),
-                new P.ApplicationNonVisualDrawingProperties(
-                    new P.PlaceholderShape { Type = P.PlaceholderValues.Body })),
+                new P.ApplicationNonVisualDrawingProperties()),
             new P.ShapeProperties(
                 new A.Transform2D(
-                    new A.Offset { X = DefaultContentX, Y = DefaultContentY },
-                    new A.Extents { Cx = DefaultContentWidth, Cy = DefaultContentHeight })),
+                    new A.Offset { X = ContentX, Y = ContentY },
+                    new A.Extents { Cx = ContentWidth, Cy = ContentHeight }),
+                new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }),
             textBody);
-    }
-
-    private static P.Shape CreateTextShape(
-        uint id,
-        string name,
-        string textValue,
-        long x,
-        long y,
-        long width,
-        long height,
-        int fontSize,
-        bool isBullet,
-        P.PlaceholderValues placeholderType)
-    {
-        return new P.Shape(
-            new P.NonVisualShapeProperties(
-                new P.NonVisualDrawingProperties { Id = id, Name = name },
-                new P.NonVisualShapeDrawingProperties(new A.ShapeLocks { NoGrouping = true }),
-                new P.ApplicationNonVisualDrawingProperties(
-                    new P.PlaceholderShape { Type = placeholderType })),
-            new P.ShapeProperties(
-                new A.Transform2D(
-                    new A.Offset { X = x, Y = y },
-                    new A.Extents { Cx = width, Cy = height })),
-            new P.TextBody(
-                new A.BodyProperties(),
-                new A.ListStyle(),
-                CreateParagraph(textValue, isBullet, fontSize)));
     }
 
     private static A.Paragraph CreateParagraph(string text, bool isBullet, int fontSize)
     {
+        var paragraph = new A.Paragraph();
         var paragraphProperties = new A.ParagraphProperties();
 
         if (isBullet)
@@ -258,12 +236,13 @@ public sealed class PptDocumentBuilder : IDocumentBuilder
             paragraphProperties.Append(new A.CharacterBullet { Char = "•" });
         }
 
-        return new A.Paragraph(
-            paragraphProperties,
-            new A.Run(
-                new A.RunProperties { Language = "en-US", FontSize = fontSize, Dirty = false },
-                new A.Text(text)),
-            new A.EndParagraphRunProperties { Language = "en-US", FontSize = fontSize });
+        paragraph.Append(paragraphProperties);
+        paragraph.Append(new A.Run(
+            new A.RunProperties { Language = "en-US", FontSize = fontSize },
+            new A.Text(text)));
+        paragraph.Append(new A.EndParagraphRunProperties { Language = "en-US", FontSize = fontSize });
+
+        return paragraph;
     }
 
     private static A.Theme CreateTheme()

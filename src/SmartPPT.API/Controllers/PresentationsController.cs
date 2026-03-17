@@ -29,7 +29,7 @@ public sealed class PresentationsController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPost("test")]
+    [HttpGet("test")]
     [ProducesResponseType(typeof(StoredFile), StatusCodes.Status200OK)]
     public ActionResult<StoredFile> GeneratePresentation()
     {
@@ -43,15 +43,6 @@ public sealed class PresentationsController : ControllerBase
                 {
                     ElementType = SlideEngine.Contracts.Enums.ElementType.Text,
                     Content = "Welcome to SmartPPT, your AI-powered presentation assistant!",
-                    // X = 100, 
-                    // Y = 150,
-                    // Width = 400, 
-                    // Height = 100 
-                },
-                new PositionedElementDto
-                {
-                    ElementType = SlideEngine.Contracts.Enums.ElementType.Text,
-                    Content = "Welcome to SmartPPT, Shekhar!",
                     // X = 100, 
                     // Y = 150,
                     // Width = 400, 
